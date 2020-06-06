@@ -203,7 +203,12 @@
 				floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
 				position = floorGeometry.attributes.position;
 				var colors = [];
-				colors.push( 0.5, 0.5, 0.5 );
+				for ( var i = 0, l = position.count; i < l; i ++ ) {
+
+					color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+					colors.push( color.r, color.g, color.b );
+
+				}
 				floorGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 				var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: true } );
 				var floor = new THREE.Mesh( floorGeometry, floorMaterial );
