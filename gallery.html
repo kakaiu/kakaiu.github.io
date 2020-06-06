@@ -191,7 +191,7 @@
 
 				// floor
 
-				var floorGeometry = new THREE.PlaneBufferGeometry( 2000, 2000, 100, 100 );
+				var floorGeometry = new THREE.( 2000, 2000, 100, 100 );
 				floorGeometry.rotateX( - Math.PI / 2 );
 
 				// vertex displacement
@@ -246,7 +246,7 @@
 
 				boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 
-				for ( var i = 0; i < 500; i ++ ) {
+				for ( var i = 0; i < 10; i ++ ) {
 
 					var boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
 					boxMaterial.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
@@ -254,7 +254,7 @@
 					var box = new THREE.Mesh( boxGeometry, boxMaterial );
 					box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
 					box.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
-					box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
+					box.position.z = 0;
 
 					scene.add( box );
 					objects.push( box );
