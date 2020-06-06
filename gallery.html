@@ -230,7 +230,7 @@
 				var box = new THREE.Mesh( boxGeometry, boxMaterial );
 				box.position.x = 0;
 				box.position.y = 0//Math.floor( Math.random() * 20 ) * 20 + 10;
-				box.position.z = 10;
+				box.position.z = 0;
 				scene.add( box );
 				objects.push( box );
 				//
@@ -239,7 +239,6 @@
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
-
 				//
 
 				window.addEventListener( 'resize', onWindowResize, false );
