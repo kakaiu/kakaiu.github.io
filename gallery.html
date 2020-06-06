@@ -190,46 +190,16 @@
 				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
 				// floor
-
 				var floorGeometry = new THREE.PlaneBufferGeometry( 2000, 2000, 100, 100 );
 				floorGeometry.rotateX( - Math.PI / 2 );
-
-				// vertex displacement
-
-				var position = floorGeometry.attributes.position;
-
-				for ( var i = 0, l = position.count; i < l; i ++ ) {
-
-					vertex.fromBufferAttribute( position, i );
-
-					vertex.x += Math.random() * 20 - 10;
-					vertex.y += Math.random() * 2;
-					vertex.z += Math.random() * 20 - 10;
-
-					position.setXYZ( i, vertex.x, vertex.y, vertex.z );
-
-				}
-
-				floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
-
-				position = floorGeometry.attributes.position;
 				var colors = [];
-
-				for ( var i = 0, l = position.count; i < l; i ++ ) {
-					//color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-					colors.push( 0.5, 0.5, 0.5 );
-
-				}
-
+				colors.push( 0.5, 0.5, 0.5 );
 				floorGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-
 				var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: true } );
-
 				var floor = new THREE.Mesh( floorGeometry, floorMaterial );
 				scene.add( floor );
 
 				// objects
-
 				var boxGeometry = new THREE.BoxBufferGeometry( 10, 1000, 200 );
 				boxGeometry = boxGeometry.toNonIndexed(); // ensure each face has unique vertices
 				position = boxGeometry.attributes.position;
@@ -240,22 +210,6 @@
 
 				}
 				boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
-
-				/*for ( var i = 0; i < 10; i ++ ) {
-
-					var boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
-					boxMaterial.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-
-					var box = new THREE.Mesh( boxGeometry, boxMaterial );
-					box.position.x = i * 10;
-					box.position.y = 0//Math.floor( Math.random() * 20 ) * 20 + 10;
-					box.position.z = 10;
-
-					scene.add( box );
-					objects.push( box );
-
-				}*/
-
 				var boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
 				boxMaterial.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 				var box = new THREE.Mesh( boxGeometry, boxMaterial );
@@ -264,7 +218,6 @@
 				box.position.z = 10;
 				scene.add( box );
 				objects.push( box );
-
 				//
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
