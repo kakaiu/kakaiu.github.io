@@ -231,7 +231,7 @@
 
 				// objects
 
-				var boxGeometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
+				var boxGeometry = new THREE.BoxBufferGeometry( 10, 100, 10 );
 				boxGeometry = boxGeometry.toNonIndexed(); // ensure each face has unique vertices
 
 				position = boxGeometry.attributes.position;
@@ -246,7 +246,7 @@
 
 				boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 
-				for ( var i = 0; i < 500; i ++ ) {
+				for ( var i = 0; i < 10; i ++ ) {
 
 					var boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
 					boxMaterial.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
