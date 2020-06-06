@@ -191,13 +191,11 @@
 				// floor
 				var floorGeometry = new THREE.PlaneBufferGeometry( 2000, 2000, 100, 100 );
 				floorGeometry.rotateX( - Math.PI / 2 );
-				// vertex displacement
 				var position = floorGeometry.attributes.position;
 				floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
 				position = floorGeometry.attributes.position;
 				var colors = [];
 				for ( var i = 0, l = position.count; i < l; i ++ ) {
-
 					color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 					colors.push( color.r, color.g, color.b );
 
@@ -211,9 +209,8 @@
 				var boxGeometry = new THREE.BoxBufferGeometry( 10, 100, 100 );
 				boxGeometry = boxGeometry.toNonIndexed(); // ensure each face has unique vertices
 				position = boxGeometry.attributes.position;
-				boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+				boxGeometry.setAttribute( 'color', new THREE.Color( 0xff0000 ));
 				var boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
-				boxMaterial.color.setHSL( 1, 1, 1 );
 				var box = new THREE.Mesh( boxGeometry, boxMaterial );
 				box.position.x = 0;
 				box.position.y = 0//Math.floor( Math.random() * 20 ) * 20 + 10;
