@@ -196,6 +196,7 @@
 				position = floorGeometry.attributes.position;
 				var colors = [];
 				for ( var i = 0, l = position.count; i < l; i ++ ) {
+
 					color.setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 					colors.push( color.r, color.g, color.b );
 
@@ -211,7 +212,7 @@
 				position = boxGeometry.attributes.position;
 				boxGeometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 				var boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: true } );
-				boxMaterial.color.setHSL( 1, 1, 1 );
+				boxMaterial.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 				var box = new THREE.Mesh( boxGeometry, boxMaterial );
 				box.position.x = 0;
 				box.position.y = 0//Math.floor( Math.random() * 20 ) * 20 + 10;
