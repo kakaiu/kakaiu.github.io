@@ -377,7 +377,7 @@
 				box.position.y = 0//Math.floor( Math.random() * 20 ) * 20 + 10;
 				box.position.z = 120;
 				scene.add( box );
-				objects.push( box );
+				
 				//VIDEO
 				var video = document.createElement( 'video' );
 				video.src = "asset/video/sintel.mp4";
@@ -387,12 +387,21 @@
 				texture.magFilter = THREE.LinearFilter;
 				texture.format = THREE.RGBFormat;
 
+				var edge_geometry = new THREE.PlaneGeometry( 240/5+3, 100/5+2, 4, 4 );
+				var edge_material = new THREE.MeshPhongMaterial( { specular: 0xffffff, reflectivity:0, shininess:0, flatShading: true } );
+				edge_material.color = new THREE.Color( 0x444444 );
+				edge_geometry.rotateY( - Math.PI / 2 );
+				var edge = new THREE.Mesh( edge_geometry, edge_material );
+				edge.position.set(-5.2, 28.5, 120);
+				scene.add( edge );
+
 				var movieMaterial = new THREE.MeshBasicMaterial( { map: texture, overdraw: true, side:THREE.DoubleSide } );
 				var movieGeometry = new THREE.PlaneGeometry( 240/5, 100/5, 4, 4 );
 				movieGeometry.rotateY( - Math.PI / 2 );
 				var movieScreen = new THREE.Mesh( movieGeometry, movieMaterial );
 				movieScreen.position.set(-5.5, 28.5, 120);
 				scene.add(movieScreen);
+				objects.push( movieScreen );
 
 				// 3D-MODEL
 				dynamic_3d_model_init();
