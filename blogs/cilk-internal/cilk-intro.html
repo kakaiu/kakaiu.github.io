@@ -66,10 +66,10 @@
       <div class="container">
 
         <div class="d-flex justify-content-between align-items-center">
-          <h2>Inner Page</h2>
+          <h2>Cilk Introduction</h2>
           <ol>
             <li><a href="../../index.html">Home</a></li>
-            <li>Inner Page</li>
+            <li>Cilk Introduction</li>
           </ol>
         </div>
 
@@ -78,8 +78,18 @@
 
     <section class="inner-page">
       <div class="container">
+        <h4>Parallel Execution under Work Stealing</h4>
         <p>
-          Example inner page template
+          Cilk runtime system creates one pthread per core and uses the work-stealing protocol to move parallel tasks around to achieve a good parallelism.
+        </p>
+        <p>
+Basically, the task parallelism is much larger than the count of cores. For the performance consideration, the runtime system minimizes the overhead of work execution at the expense of increasing the overhead of the critical path. This is a basic design decision throughout the runtime implementation.
+    </p>
+    <p>
+The most important fact is that when a parallel program running in the Cilk runtime, the count of stealing is rare. Within a worker/pthread, in most of the time, the execution is sequential. The work-stealing tends to happen at the beginning of the execution or the end of the execution.
+</p>
+<p>
+When no stealing happens, the spawned function is executed as a normal sequential function and returns to its parent as a normal sequential function return. In this way, the overhead of work execution is minimized. On the other hand, when stealing succeeds, additional heavy data structures are created and many additional operations are executed to maintain the truly parallel execution logic and context. Since the stealing happens rare, the overhead of stealing throughout the execution is small and the runtime achieves execution efficiency.
         </p>
       </div>
     </section>
