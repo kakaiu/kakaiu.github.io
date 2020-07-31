@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Inner Page - iPortfolio Bootstrap Template</title>
+  <title>Blog - Cilk Scheduler</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -66,10 +66,10 @@
       <div class="container">
 
         <div class="d-flex justify-content-between align-items-center">
-          <h2>Inner Page</h2>
+          <h2>Work-stealing Scheduler</h2>
           <ol>
-            <li><a href="index.html">Home</a></li>
-            <li>Inner Page</li>
+            <li><a href="../../index.html">Home</a></li>
+            <li>Work-stealing Scheduler</li>
           </ol>
         </div>
 
@@ -79,7 +79,31 @@
     <section class="inner-page">
       <div class="container">
         <p>
-          Example inner page template
+          In work-stealing, the oldest stacklet of the victim is stolen to the thief. This is maintained by the closure tree. When a closure is stolen from the victim, the stolen stacklet is determined by victim_w->head. It includes the frames from the victim_w->head to the oldest call parent. For each stolen frame, one closure is guaranteed. Also, one single closure for left stacklets in the victim is created. And the closure tree is updated accordingly.
+</p>
+<p>
+Let CL be the closure is being stolen, here are three cases:
+</p>
+<p>
+(1) CL->frame == NULL
+</p>
+<p>
+CL is a spawned child of a parent CLP which has been stolen. After CLP gets stolen, CL becomes the top of ready_deque. This is the first time CP gets stolen. CP may contain multiple stacklets. In this case, only the oldest stacklet gets stolen and put on the thief worker. And the CL is set to SUSPENDED. A closure CL_T is created for the youngest frame of the oldest stacklet and the CL_T is set to READY. Other frames in this oldest stacklet are promoted to closures and set to SUSPENDED and the frame field of these newly created closures are set respectively and a closure caller->callee chain is formulated.
+</p>
+<p>
+(2) CL->frame != NULL and CL->frame != worker->head
+</p>
+<p>
+It means that CL has been stolen before and the oldest stacklet of CL now contains more than one frame. This is due to that after CL gets stolen, its called child finishes (if there has any) and then it does a call again and then the called child does a spawn which generates some called children in the oldest stacklet of CL. In this case, CL->frame is set to the oldest frame in the oldest stacklet of CL but CL->frame is not worker->head which points to the youngest frame in the oldest stacklet of CL. Thus, (2) is just like the case (1).
+</p>
+<p>
+(3) CL->frame != NULL and CL->frame == worker->head
+</p>
+<p>
+It means that CL has been stolen before and the oldest stacklet of CL now has one frame. This is due to that after CL gets stolen, its called child finishes (if there has any) and then it spawns a child. CL->frame is set to the oldest frame in the oldest stacklet of CL, which is equal to worker->head. Thus, in this case, CL is stolen to the thief ready deque as CL_T.
+</p>
+<p>
+In the three cases, a single CL_V new closure is created for other stacklets in CL on victim worker. The CL_V->frame is set to NULL and CL_V is set to RUNNING and CL_V is linked to the CL_T.
         </p>
       </div>
     </section>
@@ -89,9 +113,6 @@
   <!-- ======= Footer ======= -->
   <footer id="footer">
     <div class="container">
-      <div class="copyright">
-        &copy; Copyright <strong><span>iPortfolio</span></strong>
-      </div>
       <div class="credits">
         <!-- All the links in the footer should remain intact. -->
         <!-- You can delete the links only if you purchased the pro version. -->
