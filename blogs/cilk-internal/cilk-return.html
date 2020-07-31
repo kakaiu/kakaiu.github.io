@@ -66,10 +66,10 @@
       <div class="container">
 
         <div class="d-flex justify-content-between align-items-center">
-          <h2>Inner Page</h2>
+          <h2>Cilk Return Protocol</h2>
           <ol>
             <li><a href="index.html">Home</a></li>
-            <li>Inner Page</li>
+            <li>Cilk Return Protocol</li>
           </ol>
         </div>
 
@@ -78,9 +78,34 @@
 
     <section class="inner-page">
       <div class="container">
+        <h4>Implementation of the return framework</h4>
         <p>
-          Example inner page template
+          When a frame returns, what the worker will do next is decided now. It may simply return to its parent when the normal serial execution. Or it may update runtime status when the parallel execution and it may do work-stealing if there is no more work to do. By calling __cilkrts_leave_frame(), the different routine is applied according to whether the current returning frame is called or spawned by its parent.
         </p>
+        <p>
+If the frame is called, whether the frame has been stolen by others is checked. If no, it means that the execution of this frame is in the normal serial execution and so nothing needs to handle. If yes, it means that the parent has been stolen. So, Cilk_set_return() is called to maintain the return protocol of this called child. If the frame is spawned, whether the deque (w->l->shadow_deque) is empty is checked. If no, it means the parent has not been stolen and so nothing needs to handle. If yes, its parent has been stolen and Closure_return() is called in the runtime to maintain the return protocol of this spawned child.
+  </p>
+  <p>
+Cilk_exception_handler() is called for the worker to enter the runtime from user code. Once the runtime is entered, the closure at the bottom of the ready_deque is set CLOSURE_RETURNING (by Cilk_exception_handler) and this CLOSURE_RETURNING flag leads that Closure_return() is called in runtime.
+</p>
+<h4>Implementation of the called child return</h4>
+<p>Cilk_set_return() maintains the return protocol of a called child. When its parent is stolen: (1) The called child is promoted to a closure; (2) The parent is suspended; (3) The parent's callee related fields are updated. Thus, Cilk_set_return should basically update the above three things in addition to maintaining the ready_deque. Therefore, the implementation of Cilk_set_return contains: (1) Remove the child closure from ready_deque via deque_xtract_bottom(). (2) Update its parent's callee related fields showing that no outstanding called child of its parent now; (3) Release memory of this child closure back to the runtime. Then, the runtime can use this space for other usages; (4) Resume the parent via setup_call_parent_resumption(); (5) Add the parent closure to the bottom of the ready_deque via deque_add_bottom(). It is noted that the invoke_main_closure exceptionally has no parent. For this special case, just do nothing.</p>
+<h4>Implementation of the spawn child return</h4>
+<p>
+Closure_return() maintains the return protocol of a spawned child. When its parent is stolen: (1) The parent is suspended; (2) The parent is set unsynced; (3) Children of the parent are promoted to closures, as outstanding children. The outstanding spawned child is linked to its parent via parent->join_counter++ and linked to sibling spawned children. The outstanding called child is linked to its parent via callee related fields of the parent; (4) A new fiber is created for the next function call of the parent. Thus, Closure_return should update the above four things. Noted that, before Closure_return is called, the current running closure is removed from the ready_deque in worker_scheduler(), and before long jump back to user code, the next running closure is added to the ready_deque in do_what_it_says(). So, we need not update the ready_deque in Closure_return.
+</p>
+<p>
+Therefore, the implementation of Cilk_set_return contains: (1) Update fiber. When steal happens, only the left-most child shares the fiber with its parent which is the first spawned child. Thus, if the current returning one is the left-most child, give its fiber to its parent, else, release the fiber back to the fiber pool via cilk_fiber_deallocate_to_pool().
+</p>
+<p>
+Whether the current returning child is the leftmost child is determined by checking whether the parent->fiber_child is NULL and the child->left_sib is NULL. Simply checking the left_sib field insufficient. This is because the current returning child may have multiple spawned siblings, multiple times this Closure_return is called. For each time the Closure_return is called, the child is removed from its sibling linking and it may make a sibling' left_sib is NULL. Under this mechanism, multiple children may think itself is the left-most child before all children finish. By seeing whether parent->fiber_child is NULL in addition to the child->left_sib is NULL, whether the child is the leftmost child can be determined.
+</p>
+<p>
+Noted that we use fiber_child to cache the fiber once the left-most child returns. We use the fiber_child to update the parent fiber when the sync is passing or there is an outstanding spawned child as the last child is returning. We reset the fiber_child to NULL once the update is finished. This mechanism guarantees that only the leftmost child can have the status that parent->fiber_child is NULL and the child->left_sib is NULL.
+</p>
+<p>
+Once the fiber is updated, (2) Unlink the child from its siblings via Closure_remove_child(); (3) Free the memory space of the child closure back to runtime for later usages via Closure_destroy(); (4) Decrement the join_counter via decrement_join_counter() showing the count of unfinished outstanding spawn children is reduced by 1; (5) Try to get the continuation of the suspended parent. If it is the last child, get the parent closure and make it ready and set synced. Then, this closure will be set up for execution in do_what_it_says. Moreover, set w->l->provably_good_steal to 1 which tells the worker to set the jump buffer according to the parent fiber when jumps to the parent. On the other hand, if it is not the last child, at this point, this worker runs out of works. So just return NULL and then the runtime will do work-stealing to steal more work from other workers. Noted that we use Closure_has_children() to see if the parent has outstanding children, which uses parent->has_cilk_callee and parent->join_counter to check. When it is the last child, the parent->has_cilk_callee have been set to 0 by Cilk_set_return() when a called child returns previously, and the parent->join_counter has been just set to 0 in step (4).
+</p>
       </div>
     </section>
 
@@ -89,9 +114,6 @@
   <!-- ======= Footer ======= -->
   <footer id="footer">
     <div class="container">
-      <div class="copyright">
-        &copy; Copyright <strong><span>iPortfolio</span></strong>
-      </div>
       <div class="credits">
         <!-- All the links in the footer should remain intact. -->
         <!-- You can delete the links only if you purchased the pro version. -->
