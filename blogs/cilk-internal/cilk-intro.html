@@ -91,6 +91,17 @@ The most important fact is that when a parallel program running in the Cilk runt
 <p>
 When no stealing happens, the spawned function is executed as a normal sequential function and returns to its parent as a normal sequential function return. In this way, the overhead of work execution is minimized. On the other hand, when stealing succeeds, additional heavy data structures are created and many additional operations are executed to maintain the truly parallel execution logic and context. Since the stealing happens rare, the overhead of stealing throughout the execution is small and the runtime achieves execution efficiency.
         </p>
+        <h4>Layered Implementation</h4>
+        <p>
+        The Cilk runtime has three layers: (1) stack_frame; (2) closure; (3) fiber. Stack frames are created by Cilk ABI which converts the user program expression to DAG of stack frames. In the DAG, each node is a stack frame and the logic parallelism is expressed. When two nodes are parallel in DAG, it means that the two nodes are ALLOWED to run in parallel. Whether these two nodes are actually executed in parallel, is decided by whether work-stealing happens to their parent.
+      </p>
+      <p>
+Only if stealing happens to a frame, closures are created for the stolen frame and its child frame and the callee frame chain of the child. In this way, the runtime establishes a closure tree beyond the stack frame DAG. This tree is used for representing the actually parallel execution in the nodes of the DAG. Thus, this closure tree is updated when successful stealing and sync and return happen. The closure tree only maintains the actually parallel execution relationships of stack frames in DAG but it does not implement the STACK mechanism to support the parallel execution.
+  </p>
+  <p>
+Cilk runtime implements the fiber mechanism to enable parallel executions. When the parallel execution exists, the worker/pthread has to allow two children C stack frame to access the parent frame concurrently and expand the stack concurrently. When the children return, they should recover the context of their parent correctly. The Cilk runtime uses fiber to support it. When a new parallel execution instance is created when stealing succeed, a new fiber is created for the parent's continuation and the spawned child inherits the parent's original fiber. When a stolen parent is ready to run, it gets the fiber from its left-most child.
+</p>
+
       </div>
     </section>
 
